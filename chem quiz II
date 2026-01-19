@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANTHI - PG CHEMISTRY QUIZ</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e67e22; /* Different color for this version */
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #fdfefe;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f3f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #quiz-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--secondary-color);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+        }
+
+        .header h1 { color: var(--primary-color); font-size: 1.8rem; margin: 0; text-transform: uppercase; }
+        .header p { color: #555; margin: 8px 0 0; font-weight: bold; }
+
+        .question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 14px 18px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fff;
+            text-align: left;
+            font-size: 1.05rem;
+            width: 100%;
+        }
+
+        .option:hover {
+            border-color: var(--secondary-color);
+            background-color: #fff9f4;
+        }
+
+        .option.correct {
+            background-color: var(--success-color) !important;
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .option.wrong {
+            background-color: var(--error-color) !important;
+            color: white;
+            border-color: var(--error-color);
+        }
+
+        .controls {
+            margin-top: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button#next-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        button#next-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #progress {
+            font-size: 1rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        #result-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        sub, sup { font-size: 0.75em; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="quiz-box">
+        <div class="header">
+            <h1>SANTHI - PG CHEMISTRY</h1>
+            <p>Objective Test: Questions 21 - 50</p>
+        </div>
+        
+        <div id="question-text" class="question">Loading...</div>
+        
+        <div id="options-container" class="options"></div>
+
+        <div class="controls">
+            <div id="progress">Question 1 of 30</div>
+            <button id="next-btn" onclick="nextQuestion()" disabled>Next</button>
+        </div>
+    </div>
+
+    <div id="result-container">
+        <h2>Quiz Completed!</h2>
+        <div class="score" id="final-score">0/30</div>
+        <p id="feedback-text"></p>
+        <button id="next-btn" style="background-color: var(--primary-color);" onclick="location.reload()">Take Again</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        { q: "In diborane, the number of electrons that accounts for banana bonds is", o: ["six", "two", "four", "three"], a: 2 },
+        { q: "The element that does not show catenation among the following p-block elements is", o: ["Carbon", "silicon", "Lead", "germanium"], a: 2 },
+        { q: "Carbon atoms in fullerene with formula C<sub>60</sub> have", o: ["sp³ hybridised", "Sp hybridised", "sp² hybridised", "partially sp² and partially sp³"], a: 2 },
+        { q: "Oxidation state of carbon in its hydrides is", o: ["+4", "-4", "+3", "+2"], a: 0 },
+        { q: "The basic structural unit of silicates is", o: ["(SiO₃)²⁻", "(SiO₄)²⁻", "(SiO)⁻", "(SiO₄)⁴⁻"], a: 3 },
+        { q: "The repeating unit in silicone is", o: ["SiO₂", "R₂SiO", "R-O-Si-O", "R-O-O-Si"], a: 1 },
+        { q: "Which of these is not a monomer for a high molecular mass silicone polymer?", o: ["Me₃SiCl", "PhSiCl₃", "MeSiCl₃", "Me₂SiCl₂"], a: 0 },
+        { q: "Which of the following is not sp² hybridised?", o: ["Graphite", "graphene", "Fullerene", "dry ice"], a: 3 },
+        { q: "The geometry at which carbon atoms in diamond are bonded to each other is", o: ["Tetrahedral", "hexagonal", "Octahedral", "none of these"], a: 0 },
+        { q: "Which of the following statements is not correct?", o: ["Beryl is a cyclic silicate", "Mg₂SiO₄ is an orthosilicate", "[SiO₄]⁴⁻ is basic unit", "Feldspar is not aluminosilicate"], a: 3 },
+        { q: "Duralumin is an alloy of", o: ["Cu, Mn", "Cu, Al, Mg", "Al, Mn", "Al, Cu, Mn, Mg"], a: 3 },
+        { q: "The compound used in nuclear reactors as protective shields and control rods is", o: ["Metal borides", "metal oxides", "Metal carbonates", "metal carbide"], a: 0 },
+        { q: "The stability of +1 oxidation state increases in the sequence", o: ["Al < Ga < In < Tl", "Tl < In < Ga < Al", "In < Tl < Ga < Al", "Ga < In < Al < Tl"], a: 0 },
+        { q: "In which of the following, NH₃ is not used?", o: ["Nessler's reagent", "Analysis of IV group basic radical", "Analysis of III group basic radical", "Tollen's reagent"], a: 0 },
+        { q: "Which is true regarding nitrogen?", o: ["least electronegative", "low ionisation enthalpy", "ability to form pπ-pπ bonds", "d-orbitals available"], a: 2 },
+        { q: "An element belongs to group 15 and 3rd period, its configuration is", o: ["1s²2s²2p⁶", "1s²2s²2p³", "1s²2s²2p⁶3s²3p²", "1s²2s²2p⁶3s²3p³"], a: 3 },
+        { q: "On hydrolysis, PCl₃ gives", o: ["H₃PO₃", "PH₃", "H₃PO₄", "POCl₃"], a: 0 },
+        { q: "P₄O₆ reacts with cold water to give", o: ["H₃PO₃", "H₄P₂O₇", "HPO₃", "H₃PO₄"], a: 0 },
+        { q: "The basicity of pyrophosphorous acid (H₄P₂O₅) is", o: ["4", "2", "3", "5"], a: 1 },
+        { q: "The molarity of given orthophosphoric acid is 2M. Its normality is", o: ["6N", "4N", "2N", "none of these"], a: 0 },
+        { q: "Among the following, which is the strongest oxidizing agent?", o: ["Cl₂", "F₂", "Br₂", "I₂"], a: 1 },
+        { q: "The correct order of thermal stability of hydrogen halide is", o: ["HI > HBr > HCl > HF", "HF > HCl > HBr > HI", "HCl > HF > HBr > HI", "HI > HCl > HF > HBr"], a: 1 },
+        { q: "Which one of the following compounds is not formed?", o: ["XeOF₄", "XeO₃", "XeF₂", "NeF₂"], a: 3 },
+        { q: "Most easily liquefiable gas is", o: ["Ar", "Ne", "He", "Kr"], a: 3 },
+        { q: "XeF₆ on complete hydrolysis produces", o: ["XeOF₄", "XeO₂F₂", "XeO₃", "XeO₂"], a: 2 },
+        { q: "Which of the following is strongest acid among all?", o: ["HI", "HF", "HBr", "HCl"], a: 0 },
+        { q: "Correct order for bond dissociation enthalpy of halogen molecules is", o: ["Br₂>I₂>F₂>Cl₂", "F₂>Cl₂>Br₂>I₂", "I₂>Br₂>Cl₂>F₂", "Cl₂>Br₂>F₂>I₂"], a: 3 },
+        { q: "Among the following the correct order of acidity is", o: ["HClO₄ < HClO < HClO₃ < HClO₂", "HClO₄ < HClO₂ < HClO < HClO₃", "HClO₃ < HClO₄ < HClO₂ < HClO", "HClO < HClO₂ < HClO₃ < HClO₄"], a: 3 },
+        { q: "Which d block element has half filled penultimate d subshell and half filled valence subshell?", o: ["Cr", "Pd", "Pt", "none of these"], a: 0 },
+        { q: "Which ion has same number of unpaired electrons as present in V³⁺?", o: ["Ti³⁺", "Fe³⁺", "Ni²⁺", "Cr³⁺"], a: 2 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    const questionEl = document.getElementById('question-text');
+    const optionsEl = document.getElementById('options-container');
+    const progressEl = document.getElementById('progress');
+    const nextBtn = document.getElementById('next-btn');
+
+    function loadQuestion() {
+        answered = false;
+        nextBtn.disabled = true;
+        const currentData = quizData[currentQuestion];
+        
+        questionEl.innerHTML = (currentQuestion + 21) + ". " + currentData.q;
+        optionsEl.innerHTML = '';
+        progressEl.innerText = `Question ${currentQuestion + 1} of ${quizData.length}`;
+
+        currentData.o.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.classList.add('option');
+            btn.innerHTML = opt;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsEl.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, btn) {
+        if (answered) return;
+        answered = true;
+        const correct = quizData[currentQuestion].a;
+        const allOptions = document.querySelectorAll('.option');
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+        } else {
+            btn.classList.add('wrong');
+            allOptions[correct].classList.add('correct');
+        }
+        nextBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-box').style.display = 'none';
+        document.getElementById('result-container').style.display = 'block';
+        document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+        let feedback = score > 25 ? "Excellent work!" : score > 15 ? "Good effort!" : "Keep studying!";
+        document.getElementById('feedback-text').innerText = feedback;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
